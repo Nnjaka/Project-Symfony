@@ -4,19 +4,21 @@ namespace App\Controller\Admin;
 
 use App\Entity\News;
 use App\Form\NewsType;
+use App\Repository\NewsRepository;
 use App\Service\NewsFromFile;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use SplFileInfo;
 
 class AdminNewsController extends AbstractController
 {
     #[Route('/admin/news/index', name: 'admin_news_index')]
-    public function index(ManagerRegistry $doctrine): Response
+    public function index(NewsRepository $newsRepository): Response
     {
-        $news = $doctrine->getRepository(News::class)->findAll();
+        $news = $newsRepository->findAll();
 
         if (!$news) {
             throw $this->createNotFoundException(
@@ -31,9 +33,9 @@ class AdminNewsController extends AbstractController
 
 
     #[Route('/admin/news/show/{id}', name: 'admin_news_show')]
-    public function show(string $id, ManagerRegistry $doctrine): Response
+    public function show(string $id, NewsRepository $newsRepository): Response
     {
-        $news = $doctrine->getRepository(News::class)->find($id);
+        $news = $newsRepository->find($id);
 
 
         if (!$news) {
@@ -131,6 +133,12 @@ class AdminNewsController extends AbstractController
                 'Файл не найден'
             );
         }
+
+        if (!preg_match('/(xls|xlsx)/', $file->getClientOriginalExtension())) {
+            throw $this->createNotFoundException(
+                'Файл должен быть в формате Excel'
+            );
+        };
 
         $path = $this->getParameter('kernel.project_dir') . '/public/uploads';
         $file->move($path);
