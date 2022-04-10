@@ -1,0 +1,22 @@
+{% extends 'layots/admin/admin.html.twig' %}
+
+{% block title %}Панель администратора - Pагрузить новость{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Загрузить файл</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+    </div>
+</div>
+<p class="lead mb-4 mt-5">Загрузка файлов производится только в формате '.xlsx'. За один раз возможна загрузка только одной новости.</p>
+<p class="lead mb-4"> Структура таблицы: заголовок, текст, ссылка на картинку </p>
+<form method="POST" action="{{ path('admin_news_upload')}}" enctype="multipart/form-data">
+    <div class="input-group">
+    <input type="file"  name="file" id="file" class="form-control">
+    <button type="submit" class="btn btn-outline-secondary">Загрузить новость из файла</button>
+    </div class="input-group">
+</form>
+ 
+
+</div>
+{% endblock %}

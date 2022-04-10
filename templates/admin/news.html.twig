@@ -1,0 +1,46 @@
+{% extends 'layots/admin/admin.html.twig' %}
+
+{% block title %}Панель администратора - Новости{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Список новостей</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <a href="{{ path('admin_news_create') }}" class="btn btn-outline-secondary">Добавить новость</a>
+                <a href="{{ path('admin_news_upload_file') }}" class="btn btn-outline-secondary">Загрузить новость из файла</a>
+            </div>
+        </div>
+    </div>
+
+     <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>#ID</th>
+                <th>Заголовок</th>
+                <th>Текст</th>
+                <th>Картинка</th>
+                <th>Опции</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for news in newsList %}
+                <tr>
+                    <td>{{ news.id }}</td>
+                    <td><a href="{{ path('admin_news_show', {'id': news.id}) }}" class="news-title-link">{{ news.title }}</a></td>
+                    <td><a href="{{ path('admin_news_show', {'id': news.id}) }}" class="news-title-link">{{ news.text }}</a></td>
+                    <td><a href="{{ path('admin_news_show', {'id': news.id}) }}" class="news-title-link">{{ news.image }}</a></td>
+                    <td>
+                        <a href="{{ path('admin_news_update', {'news': news.id}) }}" title="Редактировать"><i class="fa-solid fa-file-pen"></i></a>
+                        &nbsp;
+                        <a href="{{ path('admin_news_delete', {'news': news.id}) }}" title="Удалить"><i class="fa-solid fa-file-circle-xmark"></i></a>
+                         &nbsp;
+                        <a href="{{ path('admin_news_copy', {'news': news.id}) }}" title="Копировать"><i class="fa-solid fa-copy"></i></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

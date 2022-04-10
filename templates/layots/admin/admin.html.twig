@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+  {% block title %}Панель администратора{% endblock %}
+
+  {% block stylesheets %}
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('css/form.css') }}" rel="stylesheet"/>
+ 
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+    <link href="{{asset('css/dashboard.css')}}" rel="stylesheet">
+  {% endblock %}
+
+  {% block javascripts %}
+    <script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+    <script src="{{asset('js/dashboard.js')}}"></script>
+    <script src="https://kit.fontawesome.com/29ce96c3d9.js" crossorigin="anonymous"></script>
+  {% endblock %}
+
+  {% block body %}
+    {{ include('layots/admin/_header.html.twig') }}
+    <div class="container-fluid">
+      <div class="row">
+      {{ include('layots/admin/_sidebar.html.twig') }}
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          {% block content %}
+            Страница администратора
+          {% endblock %}
+        </main>
+      </div>
+    </div>
+  {% endblock %}
+
+
+   
+
+
