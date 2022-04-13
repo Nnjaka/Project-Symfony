@@ -3,9 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\Entity\News;
+use App\Form\ImportFileType;
 use App\Form\NewsType;
 use App\Repository\NewsRepository;
-use App\Service\NewsFromFile;
+use App\Service\ImportService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,8 +58,6 @@ class AdminNewsController extends AbstractController
         $news = new News();
         $form = $this->createForm(NewsType::class, $news);
         $form->handleRequest($request);
-
-
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($news);
@@ -114,38 +113,29 @@ class AdminNewsController extends AbstractController
         return $this->redirectToRoute('admin_news_index');
     }
 
-    #[Route('/admin/news/upload_file', name: 'admin_news_upload_file')]
-    public function uploadFile(): Response
-    {
-        return $this->render('admin/upload.html.twig');
-    }
-
     #[Route('/admin/news/upload', name: 'admin_news_upload')]
-    public function upload(Request $request, ManagerRegistry $doctrine, NewsFromFile $getNews): Response
+    public function upload(Request $request, ManagerRegistry $doctrine, ImportService $importFile): Response
     {
         $entityManager = $doctrine->getManager();
 
-        $file = $request->files->get('file');
+        $form = $this->createForm(ImportFileType::class);
+        $form->handleRequest($request);
 
-        if (!$file) {
-            throw $this->createNotFoundException(
-                'Файл не найден'
-            );
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newsFile = $form->get('file')->getData();
+
+            $path = $this->getParameter('kernel.project_dir') . '/public/uploads';
+            $newsFile->move($path);
+            $pathToFile = $path . '/' . basename($newsFile);
+
+            $importFile->handle($pathToFile, 'news', News::SCHEMA, $entityManager);
+
+            return $this->redirectToRoute('admin_news_index');
         }
 
-        if (!preg_match('/(xls|xlsx)/', $file->getClientOriginalExtension())) {
-            throw $this->createNotFoundException(
-                'Файл должен быть в формате Excel'
-            );
-        };
-
-        $path = $this->getParameter('kernel.project_dir') . '/public/uploads';
-        $file->move($path);
-        $pathToFile = $path . '/' . basename($file);
-
-        $getNews->getNews($pathToFile, $entityManager);
-
-        return $this->redirectToRoute('admin_news_index');
+        return $this->renderForm('admin/upload.html.twig', [
+            'form' => $form,
+        ]);
     }
 
     #[Route('/admin/news/copy{news}', name: 'admin_news_copy')]

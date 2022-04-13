@@ -6,7 +6,7 @@ use App\Repository\NewsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NewsRepository::class)]
-class News
+class News implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,6 +21,8 @@ class News
 
     #[ORM\Column(type: 'string', length: 255)]
     private $image;
+
+    const SCHEMA = ['title', 'text', 'image'];
 
     public function getId(): ?int
     {
@@ -61,5 +63,20 @@ class News
         $this->image = $image;
 
         return $this;
+    }
+
+    public function setAllProperty(array $properties): self
+    {
+        $news = new News();
+
+        foreach ($properties as $key => $property) {
+            match ($key) {
+                'title' => $news->setTitle($property),
+                'text' => $news->setText($property),
+                'image' => $news->setImage($property),
+            };
+        }
+
+        return $news;
     }
 }
