@@ -6,7 +6,7 @@ use App\Entity\News;
 use App\Form\ImportFileType;
 use App\Form\NewsType;
 use App\Repository\NewsRepository;
-use App\Service\ImportService;
+use App\Service\NewsImportService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,12 +31,10 @@ class AdminNewsController extends AbstractController
         ]);
     }
 
-
     #[Route('/admin/news/show/{id}', name: 'admin_news_show')]
     public function show(string $id, NewsRepository $newsRepository): Response
     {
         $news = $newsRepository->find($id);
-
 
         if (!$news) {
             throw $this->createNotFoundException(
@@ -48,7 +46,6 @@ class AdminNewsController extends AbstractController
             'news' => $news
         ]);
     }
-
 
     #[Route('/admin/news/create', name: 'admin_news_create')]
     public function create(Request $request, ManagerRegistry $doctrine): Response
@@ -72,8 +69,10 @@ class AdminNewsController extends AbstractController
     }
 
     #[Route('/admin/news/update/{news}', name: 'admin_news_update')]
-    public function update(Request $request, ManagerRegistry $doctrine, News $news): Response
+    public function update(Request $request, NewsRepository $newsRepository, ManagerRegistry $doctrine, News $news): Response
     {
+        $news = $newsRepository->find($news->getId());
+
         $form = $this->createForm(NewsType::class, $news, [
             'action' => $this->generateUrl('admin_news_update', [
                 'news' => $news->getId()
@@ -114,7 +113,7 @@ class AdminNewsController extends AbstractController
     }
 
     #[Route('/admin/news/upload', name: 'admin_news_upload')]
-    public function upload(Request $request, ManagerRegistry $doctrine, ImportService $importFile): Response
+    public function upload(Request $request, ManagerRegistry $doctrine, NewsImportService $importFile): Response
     {
         $entityManager = $doctrine->getManager();
 
@@ -128,7 +127,7 @@ class AdminNewsController extends AbstractController
             $newsFile->move($path);
             $pathToFile = $path . '/' . basename($newsFile);
 
-            $importFile->handle($pathToFile, 'news', News::SCHEMA, $entityManager);
+            $importFile->handle($pathToFile, $entityManager);
 
             return $this->redirectToRoute('admin_news_index');
         }

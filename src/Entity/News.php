@@ -19,10 +19,12 @@ class News implements EntityInterface
     #[ORM\Column(type: 'text')]
     private $text;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 1000)]
     private $image;
 
-    const SCHEMA = ['title', 'text', 'image'];
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'news')]
+    #[ORM\JoinColumn(nullable: true)]
+    private $user;
 
     public function getId(): ?int
     {
@@ -65,18 +67,15 @@ class News implements EntityInterface
         return $this;
     }
 
-    public function setAllProperty(array $properties): self
+    public function getUser(): ?User
     {
-        $news = new News();
+        return $this->user;
+    }
 
-        foreach ($properties as $key => $property) {
-            match ($key) {
-                'title' => $news->setTitle($property),
-                'text' => $news->setText($property),
-                'image' => $news->setImage($property),
-            };
-        }
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
-        return $news;
+        return $this;
     }
 }

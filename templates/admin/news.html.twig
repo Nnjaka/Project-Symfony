@@ -20,6 +20,7 @@
                 <th>#ID</th>
                 <th>Заголовок</th>
                 <th>Текст</th>
+                <th>Автор</th>
                 <th>Картинка</th>
                 <th>Опции</th>
             </tr>
@@ -30,9 +31,10 @@
                     <td>{{ news.id }}</td>
                     <td><a href="{{ path('admin_news_show', {'id': news.id}) }}" class="news-title-link">{{ news.title }}</a></td>
                     <td><a href="{{ path('admin_news_show', {'id': news.id}) }}" class="news-title-link">{{ news.text }}</a></td>
+                    <td>{{ news.getUser() }}</td>
                     <td><a href="{{ path('admin_news_show', {'id': news.id}) }}" class="news-title-link">{{ news.image }}</a></td>
                     <td>
-                        <a href="{{ path('admin_news_update', {'news': news.id}) }}" title="Редактировать"><i class="fa-solid fa-file-pen"></i></a>
+                        <a href="{{ path('admin_news_update', {'news': news.id }) }}" title="Редактировать"><i class="fa-solid fa-file-pen"></i></a>
                         &nbsp;
                         <a href="{{ path('admin_news_delete', {'news': news.id}) }}" title="Удалить"><i class="fa-solid fa-file-circle-xmark"></i></a>
                          &nbsp;

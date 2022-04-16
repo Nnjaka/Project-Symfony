@@ -4,12 +4,11 @@ namespace App\Service;
 
 use App\Service\ServiceInterface;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
-use Doctrine\Persistence\ObjectManager;
 use Exception;
 
-class ImportService implements ServiceInterface
+abstract class ImportService implements ServiceInterface
 {
-    public function handle(string $pathToFile, string $entityName, array $schema, ObjectManager $entityManager): void
+    public function convertFromFile(string $pathToFile, array $scheme): array
     {
         //Массив, в который будут записываться данные, полученные из загруженного пользователем файла 
         $dataFromFile = [];
@@ -28,25 +27,16 @@ class ImportService implements ServiceInterface
                     };
 
                     //Проверяем файл на соответствие столбцов в схеме и полученном от пользователя файлею
-                    if (count($schema) != count($dataFromFile)) {
+                    if (count($scheme) != count($dataFromFile)) {
                         throw new Exception("Количество столбцов в файле не соответствует схеме");
                     }
 
                     //Формируем ассоциативный массив, где ключ - заранее переданная схема, значение - из массива $dataFromFile
-                    $newsFromValues = array_combine($schema, $dataFromFile);
-
-                    //Создаем Entity исходя из значения $entityName, переданного в метод
-                    $creatorEntity = new CreateEntity();
-                    $entity = $creatorEntity->create($entityName);
-
-                    //Устанавливаем свойства Entity
-                    $entity = $entity->setAllProperty($newsFromValues);
-
-                    //записываем объект в БД
-                    $entityManager->persist($entity);
-                    $entityManager->flush();
+                    return array_combine($scheme, $dataFromFile);
                 }
             };
         }
     }
+
+    abstract protected function getType(array $dataFromFile);
 }

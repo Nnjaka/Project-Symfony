@@ -13,12 +13,12 @@
             <img src="{{ news.image }}" class="card-img-top" alt="...">
             <div class="card-body">
               <p class="card-text">{{ news.text }}</p>
+              <small class="text-muted">Автор: {{ news.user }}</small><br><br>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
                   <a href="{{ path('admin_news_update', {'news': news.id}) }}"><button type="button" class="btn btn-sm btn-outline-secondary">Редактировать</button></a>
                   <a href="{{ path('admin_news_delete', {'news': news.id}) }}"><button type="button" class="btn btn-sm btn-outline-secondary">Удалить</button></a>
                 </div>
-            
               </div>
             </div>
           </div>
