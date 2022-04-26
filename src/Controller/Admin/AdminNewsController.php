@@ -2,11 +2,13 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Import;
 use App\Entity\News;
 use App\Form\ImportFileType;
 use App\Form\NewsType;
+use App\Form\NewsImportType;
+use App\Handler\NewsHandler;
 use App\Repository\NewsRepository;
-use App\Service\NewsImportService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -113,7 +115,7 @@ class AdminNewsController extends AbstractController
     }
 
     #[Route('/admin/news/upload', name: 'admin_news_upload')]
-    public function upload(Request $request, ManagerRegistry $doctrine, NewsImportService $importFile): Response
+    public function upload(Request $request, ManagerRegistry $doctrine, NewsHandler $newsHandler): Response
     {
         $entityManager = $doctrine->getManager();
 
@@ -127,13 +129,26 @@ class AdminNewsController extends AbstractController
             $newsFile->move($path);
             $pathToFile = $path . '/' . basename($newsFile);
 
-            $importFile->handle($pathToFile, $entityManager);
+            $import = new Import();
+            $import->setName(basename($newsFile));
+            $import->setPath($pathToFile);
+            $import->setFormType(NewsImportType::class);
+
+            $data = $newsHandler->handle($import, $entityManager);
+
+            if ($data instanceof Import) {
+                return $this->renderForm('admin/upload.html.twig', [
+                    'form' => $form,
+                    'errors' => $import->getErrors()
+                ]);
+            }
 
             return $this->redirectToRoute('admin_news_index');
         }
 
         return $this->renderForm('admin/upload.html.twig', [
             'form' => $form,
+            'errors' => ''
         ]);
     }
 

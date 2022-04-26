@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Import;
 use App\Entity\News;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -32,7 +33,7 @@ class ImportFileType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => News::class,
+            'data_class' => Import::class,
         ]);
     }
 }
