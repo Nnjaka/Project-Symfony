@@ -6,15 +6,14 @@ use App\Entity\Import;
 use App\Entity\ImportRow;
 use App\Service\ServiceInterface;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
-use Symfony\Component\Form\Forms;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ImportService implements ServiceInterface
 {
-    public function __construct(protected ValidatorInterface $validator, protected ManagerRegistry $doctrine)
+    public function __construct(protected FormFactoryInterface $formFactory, protected ValidatorInterface $validator, protected ManagerRegistry $doctrine)
     {
     }
 
@@ -33,57 +32,49 @@ class ImportService implements ServiceInterface
                 } else {
                     $cells = $row->getCells();
                     foreach ($cells as $cell) {
-                        $rowArray[] = $cell->getValue();
+                        $rowArrays[$rowIndex][] = $cell->getValue();
                     };
+                }
+            }
 
-                    //Формируем массив 
-                    $row = array_combine($scheme, $rowArray);
+            foreach ($rowArrays as $rows => $rowArray) {
+                //Формируем массив 
+                $row = array_combine($scheme, $rowArray);
 
-                    $importRow = new ImportRow($import, $sheet, $rowIndex, $row);
+                //Создаем форму для валидации полей
+                $form = $this->buildForm($import->getFormType());
+                $form->submit($row);
 
-                    //Создаем форму для валидации полей
-                    $form = $this->buildForm($import->getFormType());
-                    $form->submit($row);
-
-                    //Если поля валидны, возвращаем массив для создания объекта
-                    if ($form->isValid()) {
-                        $import->setSuccess('true');
-                        $this->saveImport($import);
-
-                        return $row;
-                    }
-
-                    //Если поля не валидны возвращаем объект Import
+                //Если поля валидны
+                if ($form->isValid()) {
+                    $import->setSuccess('true');
+                    $this->saveImport($import);
+                } else {
+                    // Если поля не валидны
                     foreach ($form->all() as $key => $child) {
                         if (!$child->isValid()) {
                             foreach ($child->getErrors() as $error) {
-                                $errors[$key] = $error->getMessage();
+                                $errors[$rows] = 'Error in row ' . (int)$rows . ' - ' . $error->getMessage();
                             }
                         }
                     }
-
                     $import->setErrors(implode(' ', $errors));
                     $import->setSuccess('false');
                     $this->saveImport($import);
-
-                    return $import;
                 }
+                $importRows[] = new ImportRow($import, $sheet, $rows, $row);
             };
         }
+        return $importRows;
     }
 
     protected function buildForm(string $formType, array $formOptions = []): FormInterface
     {
-        $validator = $this->validator;
-        $formFactory = Forms::createFormFactoryBuilder()
-            ->addExtension(new ValidatorExtension($validator))
-            ->getFormFactory();
-
         $baseOptions = [
             'allow_extra_fields' => true
         ];
 
-        return $formFactory
+        return $this->formFactory
             ->create(
                 $formType,
                 null,

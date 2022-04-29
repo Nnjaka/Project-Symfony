@@ -6,7 +6,7 @@ use App\Entity\Import;
 
 class ImportRow
 {
-    public function __construct(protected Import $data, private $rowIndex, private $sheetIndex)
+    public function __construct(protected Import $data, private $sheetIndex, private $rowIndex, private array $row)
     {
     }
 
@@ -15,13 +15,18 @@ class ImportRow
         return $this->data;
     }
 
-    public function getRowIndex(): int
+    public function getRowIndex(): string
     {
         return $this->rowIndex;
     }
 
-    public function getSheetIndex(): int
+    public function getSheetIndex(): mixed
     {
         return $this->sheetIndex;
+    }
+
+    public function getRow(): array
+    {
+        return $this->row;
     }
 }

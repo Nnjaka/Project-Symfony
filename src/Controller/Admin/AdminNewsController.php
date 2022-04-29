@@ -115,10 +115,8 @@ class AdminNewsController extends AbstractController
     }
 
     #[Route('/admin/news/upload', name: 'admin_news_upload')]
-    public function upload(Request $request, ManagerRegistry $doctrine, NewsHandler $newsHandler): Response
+    public function upload(Request $request, NewsHandler $newsHandler): Response
     {
-        $entityManager = $doctrine->getManager();
-
         $form = $this->createForm(ImportFileType::class);
         $form->handleRequest($request);
 
@@ -134,12 +132,12 @@ class AdminNewsController extends AbstractController
             $import->setPath($pathToFile);
             $import->setFormType(NewsImportType::class);
 
-            $data = $newsHandler->handle($import, $entityManager);
+            $data = $newsHandler->handle($import);
 
-            if ($data instanceof Import) {
+            if ($data) {
                 return $this->renderForm('admin/upload.html.twig', [
                     'form' => $form,
-                    'errors' => $import->getErrors()
+                    'errors' => $data
                 ]);
             }
 

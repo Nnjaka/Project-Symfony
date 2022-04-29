@@ -91,6 +91,7 @@ class NewsImportType extends AbstractType
         $resolver->setDefaults([
             'allow_extra_fields' => true,
             'data_class' => News::class,
+            'csrf_protection' => false
         ]);
     }
 }
