@@ -14,10 +14,10 @@ class UserFixtures extends Fixture
         $faker = Factory::create();
         for ($i = 0; $i < 20; $i++) {
             $user = new User();
-            $user->setFirstName($faker->firstName());
-            $user->setLastName($faker->lastName());
-            $user->setEmail($faker->freeEmail());
-            $user->setPassword($faker->md5());
+            $user->setFirstName($faker->firstName())
+                ->setLastName($faker->lastName())
+                ->setEmail($faker->freeEmail())
+                ->setPassword($faker->md5());
             $manager->persist($user);
             $this->addReference('user_reference_' . $i, $user);
         }

@@ -36,10 +36,10 @@ class NewsHandler implements HandlerInterface
         $news = new News();
         $user = $this->repository->findOneBy(['email' => $importRow->getRow()['user']]);
 
-        $news->setTitle($importRow->getRow()['title']);
-        $news->setText($importRow->getRow()['text']);
-        $news->setImage($importRow->getRow()['image']);
-        $news->setUser($user);
+        $news->setTitle($importRow->getRow()['title'])
+            ->setText($importRow->getRow()['text'])
+            ->setImage($importRow->getRow()['image'])
+            ->setUser($user);
 
         $entityManager->persist($news);
         $entityManager->flush();

@@ -15,10 +15,10 @@ class NewsFixtures extends Fixture implements DependentFixtureInterface
         $faker = Factory::create();
         for ($i = 0; $i < 20; $i++) {
             $news = new News();
-            $news->setTitle($faker->text(50));
-            $news->setText($faker->text(200));
-            $news->setImage('https://loremflickr.com/640/360');
-            $news->setUser($this->getReference('user_reference_' . $i));
+            $news->setTitle($faker->text(50))
+                ->setText($faker->text(200))
+                ->setImage('https://loremflickr.com/640/360')
+                ->setUser($this->getReference('user_reference_' . $i));
             $manager->persist($news);
         }
         $manager->flush();
